@@ -95,7 +95,7 @@ Sets up configuration parameters of the module by rewriting default ones.
 	- *Default value*: nil
 
 ####Returns
-	nil
+nil
 
 ####Example
 
