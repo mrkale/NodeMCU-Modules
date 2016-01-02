@@ -1,4 +1,4 @@
-#NISTclock Module
+#NodeMCU Module<br>nistclock
 - The module reads current UTC time from a NIST time server contacted by TCP at port 13 through server pool at address *time.nist.gov*.
 - The module requires the internet connection in order to work properly.
 - The module acts as a clock and can be used as the substitution to a hardware RTC (real time clock).
@@ -7,13 +7,21 @@
 - For culculating day of week for particular date the *Tomohiko Sakamoto algorithm* is used.
 
 
+<a id="require"></a>
 ##Require
 	require("nistclock")
 
+<a id="release"></a>
 ## Release
 	nistclock, package.loaded["nistclock"] = nil, nil
 
+<a id="dependency"></a>
+## Dependency
+None
+
+<a id="examples"></a>
 ## Examples
+- **nistclock-version.lua**: Prints current version of the module.  
 - **nistclock-ex01-time.lua**: Getting one-time formatted current date and time in CET and UTC with waiting for a NIST server with help another system timer than default one.  
 - **nistclock-ex02-web.lua**: Web server with simple HTML page refreshed every 15 seconds displaying current date and time in CET format and other system parameters. The HTTP header `Date` contains the current date and time in GMT format. Months and weekdays are translated to their names.
 
@@ -30,7 +38,7 @@
 <a id="version"></a>
 ## version()
 ####Description
-Returns the current semantic version of the module.
+Returns the current semantic version string of the module alongside with the version component numbers.
 
 ####Syntax
 	version()
@@ -39,7 +47,11 @@ Returns the current semantic version of the module.
 none
 
 ####Returns
-- **version**: Semantic version number string in the schema *major.minor.patch*.
+The function returns multiple values. 
+- **version**: Semantic version string in the schema *major.minor.patch*.
+- **majorVersion**: Number of major version.
+- **minorVersion**: Number of minor version.
+- **patchVersion**: Number of patch version.
 
 ####Example
 
@@ -47,7 +59,7 @@ none
 require("nistclock")
 print(nistclock.version())
 ```
-	>1.0.0
+	>1.2.3, 1, 2, 3
 
 [Back to interface](#interface)
 

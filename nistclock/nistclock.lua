@@ -11,9 +11,13 @@ local moduleName = ...
 local M = {}
 _G[moduleName] = M
 
+function M.version()
+  local major, minor, patch = 1, 0, 1
+  return major.."."..minor.."."..patch, major, minor, patch
+end
+
 --Configuration parameters
 local conf = {
-  version = "1.0.0",    --Module version
   timer = 0,            --Number of clock timer
   tzdelay = 0,          --Time zone difference from UTC in seconds
   refresh = 60,         --Refresh time period in seconds from NIST time server
@@ -214,8 +218,5 @@ function M.setup(setupTable)
   if setupTable.tickcb ~= nil then conf.tickcb = setupTable.tickcb end
 end
 
-function M.version()
-  return conf.version
-end
 
 return M

@@ -19,8 +19,7 @@ tmr.alarm(1, 500, 1,
       second, minute, hour, weekday, day, month, year = nistclock.getTime(0)
       print(string.format("UTC: %02d.%02d.%4d %02d:%02d:%02d", day, month, year, hour, minute, second))
       --Release it after use
-      nistclock = nil
-      package.loaded["nistclock"] = nil
+      nistclock, package.loaded["nistclock"] = nil, nil
     end
   end
 )
