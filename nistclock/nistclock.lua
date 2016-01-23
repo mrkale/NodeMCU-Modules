@@ -12,7 +12,7 @@ local M = {}
 _G[moduleName] = M
 
 function M.version()
-  local major, minor, patch = 1, 0, 1
+  local major, minor, patch = 1, 0, 2
   return major.."."..minor.."."..patch, major, minor, patch
 end
 
@@ -154,7 +154,7 @@ end
 
 --Stop clock timer if it is running
 function M.stop()
-  if isTimer(conf.timer) then tmr.stop(conf.timer) end
+  if isTimer(conf.timer) then tmr.unregister(conf.timer) end
   for k,v in ipairs(dateTable)
   do
     dateTable[k] = 0
@@ -164,7 +164,7 @@ end
 --Start clock timer if it is set correctly and return result flag
 function M.start()
   if isTimer(conf.timer) then M.stop() else return false end
-  tmr.alarm(conf.timer, 1000, 1,
+  tmr.alarm(conf.timer, 1000, tmr.ALARM_AUTO,
     function()
       plusTimeTable(dateTable, 1)
       if conf.tickcb then conf.tickcb() end
@@ -179,7 +179,7 @@ end
 
 --Return current time parts in compatibility with DS3231 module
 --Second, Minute, Hour, WeekDay, Day, Month, Year
---If secondsDelay not used, the configuartion tzdelay is used instead
+--If secondsDelay not used, the configuration tzdelay is used instead
 function M.getTime(secondsDelay)
   if dateTable[2] == 0 then return nil end
   secondsDelay = (secondsDelay or conf.tzdelay)

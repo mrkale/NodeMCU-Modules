@@ -1,4 +1,5 @@
 require('nistclock')
+print("nistclock version:", (nistclock.version()))
 
 days = {
   "Sunday",

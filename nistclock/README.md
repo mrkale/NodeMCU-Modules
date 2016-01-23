@@ -58,8 +58,10 @@ The function returns multiple values.
 ```lua
 require("nistclock")
 print(nistclock.version())
+print((nistclock.version()))
 ```
 	>1.2.3, 1, 2, 3
+	>1.2.3
 
 [Back to interface](#interface)
 
@@ -127,6 +129,7 @@ nistclock.setup{refresh = 300, timer = 1}
 ####Description
 Starts the internal clock controlled by the system timer with [timer](#timer) number.
 
+- If the timer with [timer](#timer) number is running already, it is stopped before setting it for the module purposes. The coordination of system timer is in responsibility of you.
 - The clock ticks in seconds and rereads the date and time from a NIST server after every [refresh](#refresh) number of seconds.
 - The clock runs the callback function every second if it is defined in the configuration parameter [tickcb](#tickcb).
 
@@ -160,7 +163,7 @@ nistclock.start()
 ####Description
 Stops the internal clock and resets the internal date and time.
 - Stopping internal clock means stopping the system timer of [timer](#timer) configuration number.
-- After clock stopping the module does not return the date and time more. The new [start()](#start) or [request()](#request) is needed.
+- After stopping the module does not return the date and time anymore. The new [start()](#start) or [request()](#request) is needed.
 - The internal time is reset even if the timer has not been stopped or running before, e.g., after previous [request()](#request) reading instant date and time.
 
 ####Syntax
