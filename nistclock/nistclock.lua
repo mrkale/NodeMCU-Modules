@@ -12,7 +12,7 @@ local M = {}
 _G[moduleName] = M
 
 function M.version()
-  local major, minor, patch = 1, 0, 2
+  local major, minor, patch = 1, 1, 0
   return major.."."..minor.."."..patch, major, minor, patch
 end
 
@@ -30,7 +30,8 @@ local conf = {
 local monthDays = {31,28,31,30,31,30,31,31,30,31,30,31}
 local monthCorr = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4}
 local timeCoef = {24, 60, 60} --Hours, Minutes, Seconds
-local dateTable = {0,0,0,0,0,0} --1=Year, 2=Month, 3=Day, 4=Hour, 5=Minute, 6=Second
+local dateTable = {0,0,0,0,0,0,0} --1=Year, 2=Month, 3=Day, 4=Hour, 5=Minute, 6=Second, 7=MJD
+local startTable = {0,0,0,0,0,0,0}
 
 --LOCAL FUNCTIONS--
 local floor = math.floor
@@ -38,7 +39,7 @@ local max = math.max
 local fmt = string.format
 
 local function isTimer(tn) return tn ~= nil and tn >= 0 and tn <= 6 end
-local function daySeconds() return 60*(60*dateTable[4]+dateTable[5])+dateTable[6] end
+local function daySeconds(t) return 60*(60*t[4]+t[5])+t[6] end
 
 local function isLeapYear(y)
   y = y + 0
@@ -62,6 +63,8 @@ local function parseNistRecord(nistRecord)
     i = i + 1
     dateTable[i] = v + 0
   end
+  --Modified Julian Day
+  dateTable[i+1] = nistRecord:sub(2, 6) + 0
 end
 
 --Add seconds to date table
@@ -75,6 +78,7 @@ local function plusTimeTable(t, s)
     if t[i] >= c
     then
       t[i-1] = t[i-1] + floor(t[i]/c)
+      if i == 4 then t[7] = t[7] + floor(t[i]/c) end
       t[i] = t[i]%c
     end
   end
@@ -105,6 +109,7 @@ local function minusTimeTable(t, s)
     if t[i] < 0
     then
       t[i-1] = t[i-1] + floor(t[i]/c)
+      if i == 4 then t[7] = t[7] + floor(t[i]/c) end
       t[i] = t[i]%c
     end
   end
@@ -126,6 +131,41 @@ end
 local function dayOfWeek(y, m, d)
   if m < 3 then y = y - 1 end
   return (y + floor(y/4) - floor(y/100) + floor(y/400) + monthCorr[m] + d) % 7 + 1
+end
+
+
+--Return current time parts in compatibility with DS3231 module
+--Second, Minute, Hour, WeekDay, Day, Month, Year, ModifiedJulianDay
+--If secondsDelay not used, the configuration tzdelay is used instead
+--If flagAdd is true, the configuration tzdelay is added to secondsDelay
+function getTime(t, secondsDelay, flagAdd)
+  if t[2] == 0 then return nil end
+  if flagAdd
+  then
+    secondsDelay = (secondsDelay or 0) + conf.tzdelay
+  else
+    secondsDelay = (secondsDelay or conf.tzdelay)
+  end
+  local tt = {}
+  if secondsDelay == 0
+  then
+    tt = t
+  else
+    for k,v in ipairs(t)
+    do
+      tt[k] = v
+    end
+    tt = minusTimeTable(plusTimeTable(tt, secondsDelay), secondsDelay)
+  end
+  return
+    tt[6],
+    tt[5],
+    tt[4],
+    dayOfWeek(tt[1], tt[2], tt[3]),
+    tt[3],
+    tt[2],
+    tt[1],
+    tt[7]
 end
 
 --PUBLIC FUNCTIONS--
@@ -158,6 +198,7 @@ function M.stop()
   for k,v in ipairs(dateTable)
   do
     dateTable[k] = 0
+    startTable[k] = dateTable[k]
   end
 end
 
@@ -168,9 +209,17 @@ function M.start()
     function()
       plusTimeTable(dateTable, 1)
       if conf.tickcb then conf.tickcb() end
-      if not conf.connecting and daySeconds() % conf.refresh == 0
+      if not conf.connecting and daySeconds(dateTable) % conf.refresh == 0
       then
         M.request()
+      end
+      --Init start table
+      if dateTable[2] ~= 0 and startTable[2] == 0
+      then
+        for k,v in ipairs(dateTable)
+        do
+          startTable[k] = dateTable[k]
+        end
       end
     end
   )
@@ -178,30 +227,31 @@ function M.start()
 end
 
 --Return current time parts in compatibility with DS3231 module
---Second, Minute, Hour, WeekDay, Day, Month, Year
+--Second, Minute, Hour, WeekDay, Day, Month, Year, ModifiedJulianDay
 --If secondsDelay not used, the configuration tzdelay is used instead
-function M.getTime(secondsDelay)
-  if dateTable[2] == 0 then return nil end
-  secondsDelay = (secondsDelay or conf.tzdelay)
-  local tt = {}
-  if secondsDelay == 0
-  then
-    tt = dateTable
-  else
-    for k,v in ipairs(dateTable)
-    do
-      tt[k] = v
-    end
-    tt = minusTimeTable(plusTimeTable(tt, secondsDelay), secondsDelay)
-  end
-  return
-    tt[6],
-    tt[5],
-    tt[4],
-    dayOfWeek(tt[1], tt[2], tt[3]),
-    tt[3],
-    tt[2],
-    tt[1]
+--If flagAdd is true, the configuration tzdelay is added to secondsDelay
+function M.getTime(secondsDelay, flagAdd)
+  return getTime(dateTable, secondsDelay, flagAdd)
+end
+
+--Return start time parts in compatibility with DS3231 module
+--Second, Minute, Hour, WeekDay, Day, Month, Year, ModifiedJulianDay
+--If secondsDelay not used, the configuration tzdelay is used instead
+--If flagAdd is true, the configuration tzdelay is added to secondsDelay
+function M.getStartTime(secondsDelay, flagAdd)
+  return getTime(startTable, secondsDelay, flagAdd)
+end
+
+--Add or deduct secondsDelay from start time
+function M.correctStartTime(secondsDelay)
+  startTable = minusTimeTable(plusTimeTable(startTable, secondsDelay), secondsDelay)
+end
+
+--Return number of seconds elapsed between current time and start time
+function M.getElapsedSecs()
+  if dateTable[2] == 0 or startTable[2] == 0 then return nil end
+  return daySeconds(dateTable) - daySeconds(startTable)
+       + 86400 * (dateTable[7] - startTable[7])
 end
 
 --Setup module by input table setupTable with parameters in arbitrary order:

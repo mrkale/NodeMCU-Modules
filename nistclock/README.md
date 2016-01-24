@@ -33,6 +33,9 @@ None
 - [stop()](#stop)
 - [request()](#request)
 - [getTime()](#getTime)
+- [getStartTime()](#getStartTime)
+- [correctStartTime()](#correctStartTime)
+- [getElapsedSecs()](#getElapsedSecs)
 
 
 <a id="version"></a>
@@ -132,6 +135,7 @@ Starts the internal clock controlled by the system timer with [timer](#timer) nu
 - If the timer with [timer](#timer) number is running already, it is stopped before setting it for the module purposes. The coordination of system timer is in responsibility of you.
 - The clock ticks in seconds and rereads the date and time from a NIST server after every [refresh](#refresh) number of seconds.
 - The clock runs the callback function every second if it is defined in the configuration parameter [tickcb](#tickcb).
+- The module stores the first date and time read from a NIST server since launching this function as the NIST clock start time.
 
 ####Syntax
 	start()
@@ -199,6 +203,7 @@ Reads the current date and time from a NIST server.
 - The internal clock runs this function periodically by the system timer, if the clock has been started.
 - This function is suitable for debuging and tuning of the module in some more complex program.
 - The function can be used for a clock controlled outside the module.
+- This function does not store the start time as mentioned in [start()](#start).
 
 ####Syntax
 	request()
@@ -235,18 +240,26 @@ Returns the current date and time.
 - The function returns nil time until the first time since system reset a NIST server has been contancted or after internal clock has been stopped. So that it is useful some delay after system reset and internal clock starting to wait for internet connection and NIST server reading.
 
 ####Syntax
-	getTime(secondsDelay)
+	getTime(secondsDelay, flagAdd)
 
 ####Parameters
+<a id="secondsDelay"></a>
 - **secondsDelay**: Integer number of seconds from UTC time for desired time zone.
-	- If the parameter is nil or not put into the function, the [tzdelay](#tzdelay) configuration parameter is used instead. The default value of it is 0 so that the function returns UTC date and time by default.
-	- If the parameter is exactly 0, the function returns UTC time. It is useful in a web server, when some time zone is set by [tzdelay](#tzdelay) configuration parameter, but for the HTTP header `Date` the GMT time is needed.
+	- If the parameter is nil or not put into the function, the default value 0 is used.
+	- The value of the parameter is added to the value of [tzdelay](#tzdelay) configuration parameter or used instead of it according to the value of the second parameter [flagAdd](#flagAdd).
+	- If the parameter is exactly 0 and [flagAdd](#flagAdd) is false or not present, the function returns UTC time. It is useful in a web server, when some time zone is set by [tzdelay](#tzdelay) configuration parameter, but for the HTTP header `Date` the GMT time is needed.
 	- If the parameter is positive integer, the function returns time from *eastern time zones* of meridian.  
 	- If the parameter is negative integer, the function returns time from *western time zones* of meridian.
 	- The parameters can span multiple days, months, or years, if appropriate number of seconds is put to the function.  
 
+
+<a id="flagAdd"></a>
+- **flagAdd**: Boolean flag determining whether [secondsDelay](#secondsDelay) parameter has to be added to the [tzdelay](#tzdelay) configuration parameter or just replace it.
+	- If the parameter is true, the [secondsDelay](#secondsDelay) value is added to [tzdelay](#tzdelay) configuration parameter, but not persistently just temporarily for the time of calculation.
+	- If the parameter is false, nil, or not put into the function, the [secondsDelay](#secondsDelay) value is used instead of the [tzdelay](#tzdelay) configuration parameter, but not persistently just temporarily for the time of calculation.
+
 ####Returns
-The output format is compatible with the same function of the official NodeMCU module *DS3231*. If internal clock has not been started by [start()](#start) or one time [request()](#request) called yet, the function returns nil value.
+The output format is compatible with the same function of the official NodeMCU module *DS3231* just with additional modified Julian day. If internal clock has not been started by [start()](#start) or one time [request()](#request) called yet, the function returns nil value.
 
 - **second**: Nil or non-negative integer of seconds (0~59) in a minute of time.  
 - **minute**: Non-negative integer of minutes (0~59) in a hour of time.
@@ -255,13 +268,14 @@ The output format is compatible with the same function of the official NodeMCU m
 - **day**: Positive integer of days (1~31) in a month of date.  
 - **month**: Positive integer of months (1~12) in a year of date.  
 - **year**: Integer of years (-9999~9999) of date including the century.
+- **mjd**: Integer of modified Julian day (0 - 99999) of date.
 
 ####Example
 
 ```lua
 require("nistclock")
 nistclock.start()
-second, minute, hour, weekday, day, month, year = nistclock.getTime()
+second, minute, hour, weekday, day, month, year, mjd = nistclock.getTime()
 if second ~= nil
 then
 	print(string.format("%02d.%02d.%04d %02d:%02d:%02d", day, month, year, hour, minute, second))
@@ -276,7 +290,101 @@ second, minute, hour, weekday, day, month, year = nistclock.getTime(-30*86400+36
 	>27.12.2015 20:33:00
 
 ####See also
+- [getStartTime()](#getStartTime)
 - [start()](#start)
 - [request()](#request)
+
+[Back to interface](#interface)
+
+
+<a id="getStartTime"></a>
+## getStartTime()
+####Description
+Returns the starting date and time of the NIST clock. It is the first gained date and time after starting the clock by function [start()](#start).
+- The behaviour and interface of the function is the same as the function [getTime()](#getTime) has.
+
+####Syntax
+	getStartTime(secondsDelay, flagAdd)
+
+####See
+- [getTime()](#getTime)
+
+[Back to interface](#interface)
+
+
+<a id="correctStartTime"></a>
+## correctStartTime()
+####Description
+Permanently increases or decreases the start date and time by input number of seconds.
+- The correction is useful for relevant long initial sequence in a program in order to set the more precise start time of the program instead to have the start time of the NIST clock.
+- If the initial sequence is relevant, it should be measured and by its time period in seconds should be deducted from the start time after the first reading from a NIST server.
+
+####Syntax
+	correctStartTime(secondsDelay)
+
+####Parameters
+<a id="secondsDelay"></a>
+- **secondsDelay**: Integer number of seconds that should be added or deducted from stored start date and time.
+	- If the parameter is nil or not put into the function, nothing happens.
+	- The parameters can span multiple days, months, or years, if reasonable and appropriate number of seconds is put to the function.  
+
+####Returns
+nil
+
+####Example
+
+```lua
+initTime = tmr.now()
+...
+require("nistclock")
+nistclock.start()
+...
+second, minute, hour, weekday, day, month, year, mjd = nistclock.getStartTime()
+print(string.format("%02d.%02d.%04d %02d:%02d:%02d", day, month, year, hour, minute, second))
+--Correct initial sequence
+nistclock.correctStartTime((initTime - tmr.now())/1000000)
+second, minute, hour, weekday, day, month, year, mjd = nistclock.getStartTime()
+print(string.format("%02d.%02d.%04d %02d:%02d:%02d", day, month, year, hour, minute, second))
+```
+	>24.01.2016 20:28:30
+	>24.01.2016 20:28:27
+
+####See also
+- [getStartTime()](#getStartTime)
+
+[Back to interface](#interface)
+
+
+<a id="getElapsedSecs"></a>
+## getElapsedSecs()
+####Description
+Calculates elapsed seconds (difference) between current date and time and start date and time.
+
+
+####Syntax
+	getElapsedSecs()
+
+####Parameters
+None
+
+####Returns
+Difference in seconds between the current time returned by the function [getTime()](#getTime) without input parameters and the start time returned by the function [getStartTime()](#getStartTime) without input parameters as well (eventually corrected by [correctStartTime()](#correctStartTime)).
+
+- **seconds**: Non-negative integer number of seconds elapsed since the corrected start date and time until the current date and time. It can be considered as the uptime of the system or NIST clock at least.
+
+####Example
+
+```lua
+require("nistclock")
+nistclock.start()
+...
+print(string.format("Elapsed %d secs", nistclock.getElapsedSecs()))
+```
+	>Elapsed 12 secs
+
+####See also
+- [getTime()](#getTime)
+- [getStartTime()](#getStartTime)
+- [correctStartTime()](#correctStartTime)
 
 [Back to interface](#interface)
