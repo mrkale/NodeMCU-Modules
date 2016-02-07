@@ -187,6 +187,5 @@ return {
 - **ip**: Desired static IP address of the ESP8266.
 - **netmask**: Mask of your LAN network defined in your wifi router.
 - **gateway**: IP address of your wifi router.
-- [Release](#release)
 
 [Back to interface](#interface)
