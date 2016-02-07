@@ -21,7 +21,7 @@ None
 
 <a id="examples"></a>
 ## Examples
-- **nistclock-version.lua**: Prints current version of the module.  
+- **nistclock-ex00-version.lua**: Prints current version of the module.  
 - **nistclock-ex01-time.lua**: Getting one-time formatted current date and time in CET and UTC with waiting for a NIST server with help another system timer than default one.  
 - **nistclock-ex02-web.lua**: Web server with simple HTML page refreshed every 15 seconds displaying current date and time in CET format and other system parameters. The HTTP header `Date` contains the current date and time in GMT format. Months and weekdays are translated to their names.
 
@@ -74,17 +74,23 @@ print((nistclock.version()))
 Sets up configuration parameters of the module by rewriting default ones.
 
 ####Syntax
-	nistclock.setup{timer=0, tzdelay=0, refresh=60, debug=true, tickcb=nil}
+	nistclock.setup{
+		timer = 0,
+		tzdelay = 0,
+		refresh = 60,
+		debug = true,
+		tickcb = nil
+	}
 
-- The parameter of the setup function is a Lua table with configuration parameters. Notice curly braces for inputing table to a function.
+- The parameter of the setup function is a Lua table with configuration parameters. Notice curly braces for inputing a table to a function.
 - Above are depicted all of the configuration parameters with their default values wired directly in the module.
-- Configuration parameters can be written in any order and only needed of them can be present in the table.
+- Configuration parameters can be written in any order and only needed of them may be present in the table.
 - Set only that configuration parameter, which another value you need for.
 
 ####Parameters
 <a id="timer"></a>
 - **timer**: Number of system timer for intenal clock.
-	- Valid values: integer 0 ~ 6
+	- Valid values: positive integer 0 ~ 6
 	- *Default value*: 0
 
 

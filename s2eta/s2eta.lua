@@ -7,7 +7,7 @@ Seconds to elapsed or estimated time conversion for NODEMCU
 
 License: http://opensource.org/licenses/MIT
 Author : Libor Gabaj <libor.gabaj@gmail.com>
-GitHub : https://github.com/mrkale/NodeMCU-Modules.git
+GitHub : https://github.com/mrkale/NodeMCU-Modules/s2eta
 --]]
 local moduleName = ...
 local M = {}
@@ -17,7 +17,7 @@ local floor = math.floor
 local format = string.format
 
 function M.version()
-  local major, minor, patch = 1, 0, 0
+  local major, minor, patch = 1, 0, 1
   return major.."."..minor.."."..patch, major, minor, patch
 end
 

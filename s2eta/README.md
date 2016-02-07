@@ -16,7 +16,7 @@ None
 
 <a id="examples"></a>
 ## Examples
-- **s2eta-version.lua**: Prints current version of the module.  
+- **s2eta-ex00-version.lua**: Prints current version of the module.  
 - **s2eta-ex01-eta.lua**: Prints illustrative time strings.  
 
 <a id="interface"></a>

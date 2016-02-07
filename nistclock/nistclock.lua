@@ -5,14 +5,14 @@ NIST clock module for NODEMCU
 
 License: http://opensource.org/licenses/MIT
 Author : Libor Gabaj <libor.gabaj@gmail.com>
-GitHub : https://github.com/mrkale/NodeMCU-Modules.git
+GitHub : https://github.com/mrkale/NodeMCU-Modules/nistclock
 --]]
 local moduleName = ...
 local M = {}
 _G[moduleName] = M
 
 function M.version()
-  local major, minor, patch = 1, 1, 0
+  local major, minor, patch = 1, 1, 1
   return major.."."..minor.."."..patch, major, minor, patch
 end
 
