@@ -21,8 +21,8 @@ None
 
 <a id="examples"></a>
 ## Examples
-- **wifista-ex00-version.lua**: Print current version of the module.  
-- **wifista-ex01-conn.lua**: Connecting to a Wifi network and release the module.  
+- **wifista-ex00-version.lua**: Print current version of the module.
+- **wifista-ex01-conn.lua**: Connecting to a Wifi network and release the module.
 
 
 <a id="interface"></a>
@@ -36,10 +36,10 @@ None
 ## Constants
 
 ####Debug level
-The constants determine the detail of printed actions and values of the module to the serial port during its run.  
+The constants determine the detail of printed actions and relevance of module's values to the serial port during its run.
 ```
 DEBUG_NONE   -- No debugging printouts
-DEBUG_BASIC  -- Basic actions executed 
+DEBUG_BASIC  -- Basic actions executed
 ```
 
 ###Wifi status
@@ -70,7 +70,7 @@ Returns the current semantic version string of the module alongside with the ver
 none
 
 ####Returns
-The function returns multiple values. 
+The function returns multiple values.
 - **version**: Semantic version string in the schema *major.minor.patch*.
 - **majorVersion**: Number of major version.
 - **minorVersion**: Number of minor version.
@@ -91,7 +91,7 @@ print((wifista.version()))
 <a id="start"></a>
 ##start{}
 ####Description
-Starts the connection to a Wifi network with values of configuration parameters provided in the input table. The module uses default values for configuration parameters not present in the input table 
+Starts the connection to a Wifi network with values of configuration parameters provided in the input table. The module uses default values for configuration parameters not present in the input table.
 
 ####Syntax
 	wifista.start{
@@ -120,7 +120,7 @@ Starts the connection to a Wifi network with values of configuration parameters 
 
 
 <a id="credfile"></a>
-- **credfile**: Name and extension of a script file defining the table with Wifi credentials and configuration of the IP address. Mind to provide correct file's extension if you plan to use compiled scripts.  
+- **credfile**: Name and extension of a script file defining the table with Wifi credentials and configuration of the IP address. Mind to provide correct file's extension if you plan to use compiled scripts.
 	- Valid values: string
 	- *Default value*: nil
 
@@ -172,17 +172,17 @@ return {
     -- gateway="192.168.0.1",
     -- },
 }
-``` 
+```
 
 
 <a id="wifiparams"></a>
-*Wifi credential parameters* are used for the framework function [wifi.sta.config](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistaconfig). 
+*Wifi credential parameters* are used for the framework function [wifi.sta.config](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistaconfig).
 - **SSID**, **PASSWORD**: Name of a Wifi network and access password, which you want to connect to.
 - **AUTO**, **BSSID**: Optional parameters, while default value for *AUTO* is [wifistat.CONNECT_AUTOMATIC](#Constants) and for *BSSID* is *nil*.
-- **HOST**: Optional name of a station (your wifi router) you want to connect to and name it on your own in your application. It is applied only if framework functions [wifi.sta.sethostname()](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistasethostname) and [wifi.sta.gethostname()](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistagethostname) are implemented. 
+- **HOST**: Optional name of a station (your wifi router) you want to connect to and name it on your own in your application. It is applied only if framework functions [wifi.sta.sethostname()](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistasethostname) and [wifi.sta.gethostname()](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistagethostname) are implemented.
 
 
-*IP config parameter* is a table used for the framework function [wifi.sta.setip()](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistasetip) setting up static IP address of the ESP8266. If the table is not defined, the ESP8266 gets dynamic IP address from a DHCP server.  
+*IP config parameter* is a table used for the framework function [wifi.sta.setip()](http://nodemcu.readthedocs.org/en/newdocs/en/modules/wifi/#wifistasetip) setting up static IP address of the ESP8266. If the table is not defined, the ESP8266 gets dynamic IP address from a DHCP server.
 - **ipconfig**: Configuration table with static IP address parameters.
 - **ip**: Desired static IP address of the ESP8266.
 - **netmask**: Mask of your LAN network defined in your wifi router.

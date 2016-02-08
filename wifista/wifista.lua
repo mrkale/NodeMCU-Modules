@@ -87,7 +87,7 @@ local function wifiStart()
 end
 
 --Start module by input table setupTable with parameters in arbitrary order:
---debug    - debug level (0 .. 2), defualt 1
+--debug    - debug level, defualt M.DEBUG_BASIC
 --timer    - number of timer (0 .. 6), default 6
 --credfile - credential file name (.lua or .lc)
 --actioncb - callback function launched after successful connection to the wifi

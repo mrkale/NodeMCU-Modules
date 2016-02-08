@@ -17,3 +17,8 @@ The module converts elapsed or estimated amount of seconds to the time string wi
 <a id="wifista"></a>
 ##wifista
 Module manages the routine actions at the connecting to a Wifi network. After successful connection the module can be released from memory in a callback function, if its constants and functions are not needed in an application altogether. The callback function can start subsequent activities of an application as well.
+
+
+<a id="compileall"></a>
+##compileall
+Module compiles all Lua scripts except excluded ones. Script "*init.lua*" is implicitly excluded from the compilation. Module implicitly compiles itself as well. *After compilation the module releases itself, because it is not more needed.*
