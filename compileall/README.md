@@ -21,6 +21,7 @@ None
 <a id="examples"></a>
 ## Examples
 - **compileall-ex00-version.lua**: Print current version of the module.
+- **compileall-ex01-comp.lua**: Compilation Lua scripts with setting detailed debug level and exclusion of sample scipts.
 
 
 

@@ -15,7 +15,7 @@ local M = {}
 _G[moduleName] = M
 
 function M.version()
-  local major, minor, patch = 1, 0, 0
+  local major, minor, patch = 1, 1, 0
   return major.."."..minor.."."..patch, major, minor, patch
 end
 
@@ -69,17 +69,15 @@ local function compileFile(luaFile)
       end
     end
     --Compilation
-    local msg
     if isIncluded
     then
       node.compile(luaFile)
       file.remove(luaFile)
       collectgarbage()
-      msg = "Compiled"
+      if conf.debug >= M.DEBUG_BASIC then print("Compiled:", luaFile) end
     else
-      msg = "Excluded"
+      if conf.debug >= M.DEBUG_DETAIL then print("Uncompiled:", luaFile) end
     end
-    if conf.debug >= M.DEBUG_BASIC then print(msg..":", luaFile) end
   end
 end
 
