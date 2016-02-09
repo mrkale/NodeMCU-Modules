@@ -120,7 +120,7 @@ Starts the connection to a Wifi network with values of configuration parameters 
 
 
 <a id="credfile"></a>
-- **credfile**: Name and extension of a script file defining the table with Wifi credentials and configuration of the IP address. Mind to provide correct file's extension if you plan to use compiled scripts.
+- **credfile**: Script file defining the table with Wifi credentials and configuration of the IP address. If provided file does not exist, the module tries to use a file with extension substituted with ".lua". If this substitution file does not exist again, the module tries to substitute extension with ".lc". So that, **it is recommended not to use any extension for the credential file in order to leave the choosing an extension on the module.**
 	- Valid values: string
 	- *Default value*: nil
 

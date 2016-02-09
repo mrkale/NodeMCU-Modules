@@ -18,7 +18,7 @@ local M = {}
 _G[moduleName] = M
 
 function M.version()
-  local major, minor, patch = 1, 0, 0
+  local major, minor, patch = 1, 1, 0
   return major.."."..minor.."."..patch, major, minor, patch
 end
 
@@ -48,6 +48,34 @@ local conf = {
 local fmt = string.format
 local function isTimer(tn) return tn ~= nil and tn >= 0 and tn <= 6 end
 
+local function getFile(luaFile)
+  local function checkFile(f)
+    if file.open(f)
+    then
+      file.close()
+      return true
+    else
+      return false
+    end
+  end
+  --Input file exists
+  if checkFile(luaFile) then return luaFile end
+  local fileName, fileExt = luaFile:match("([^.]+)(%.?[^.]*)")
+  fileExt = string.lower(fileExt)
+  --Try .lua
+  if not fileExt or fileExt ~= ".lua"
+  then
+    luaFile = fileName..".lua"
+    if checkFile(luaFile) then return luaFile end
+  end
+  --Try .lc
+  if not fileExt or fileExt ~= ".lc"
+  then
+    luaFile = fileName..".lc"
+    if checkFile(luaFile) then return luaFile end
+  end
+end
+
 local function wifiCheck()
   if wifi.sta.status() == M.STATION_GOT_IP
   then
@@ -73,7 +101,7 @@ local function wifiCheck()
 end
 
 local function wifiStart()
-  local t = dofile(conf.credfile)
+  local t = dofile(getFile(conf.credfile))
   wifi.setmode(wifi.STATION)
   if t.ipconfig
   then
@@ -89,7 +117,7 @@ end
 --Start module by input table setupTable with parameters in arbitrary order:
 --debug    - debug level, defualt M.DEBUG_BASIC
 --timer    - number of timer (0 .. 6), default 6
---credfile - credential file name (.lua or .lc)
+--credfile - credential file name (.lua or .lc, preferably without extension)
 --actioncb - callback function launched after successful connection to the wifi
 function M.start(setupTable)
   if setupTable.debug ~= nil then conf.debug = setupTable.debug end
